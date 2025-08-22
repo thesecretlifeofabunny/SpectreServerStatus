@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Net.NetworkInformation;
 using Spectre.Console;
 
 namespace SpectreServerStatus;
@@ -15,8 +16,9 @@ public static class Program
             return;
         }
 
-        // TODO allow for multiple servers, or generated list from a config
-        var serverToPing = args[0];
+        // TODO: allow for multiple servers, or generated list from a config
+
+        var listOfServersToPing = args;
 
         var table = new Table();
         table.Caption($"Refreshing every five seconds");
@@ -28,6 +30,7 @@ public static class Program
         table.AddColumn("Total Number of failed pings");
         table.AddColumn("Percentage of Success");
 
+        // TODO: create an object for all the ping response information, failures, etc
         double loopCount = 0;
         double failureCount = 0;
         double percentageOfSuccess = 0;
@@ -37,34 +40,43 @@ public static class Program
                 .AutoClear(true)
                 .Start(ctx =>
                 {
-                    var pingReplyFromPingService = PingService.PingServer(serverToPing);
-                    
-                    List<string> rowBuilder = [];
-                    
-                    if (pingReplyFromPingService is null)
-                    {
-                        Console.WriteLine("Failed To Ping server...");
-                        AnsiConsole.MarkupLine("Failed To Ping server...");
-                        failureCount++;
-                    }
-                    else
-                    {
-                        rowBuilder.Add(serverToPing);
-                        rowBuilder.Add(pingReplyFromPingService.Address.ToString());
-                        rowBuilder.Add((pingReplyFromPingService.Status.ToString()));
-                        rowBuilder.Add((pingReplyFromPingService.RoundtripTime.ToString()));
-                    }
-                    
+                    List<(string, PingReply?)> serverPingResponses = [];
+                    serverPingResponses.AddRange(from serverToPing in listOfServersToPing
+                                                 let serverPingResponse
+                        = PingService.PingServer(serverToPing)
+                                                 select (serverToPing, serverPingResponse));
+
                     loopCount++;
                     percentageOfSuccess = (loopCount - failureCount) / loopCount * 100;
-                    
-                    rowBuilder.Add(loopCount.ToString(CultureInfo.CurrentCulture));
-                    rowBuilder.Add(failureCount.ToString(CultureInfo.CurrentCulture));
-                    rowBuilder.Add(percentageOfSuccess.ToString(CultureInfo.CurrentCulture));
-                    
-                    table.AddRow(rowBuilder.ToArray());
-                    ctx.Refresh();
 
+                    foreach (var (serverToPing, pingReplyFromPingService) in serverPingResponses)
+                    {
+                        List<string> rowBuilder = [];
+
+                        if (pingReplyFromPingService is null)
+                        {
+                            Console.WriteLine("Failed To Ping server...");
+                            AnsiConsole.MarkupLine("Failed To Ping server...");
+
+                            // TODO: this is a bug as failures are global right now.
+                            failureCount++;
+                        }
+                        else
+                        {
+                            rowBuilder.Add(serverToPing);
+                            rowBuilder.Add(pingReplyFromPingService.Address.ToString());
+                            rowBuilder.Add((pingReplyFromPingService.Status.ToString()));
+                            rowBuilder.Add((pingReplyFromPingService.RoundtripTime.ToString()));
+                        }
+
+                        rowBuilder.Add(loopCount.ToString(CultureInfo.CurrentCulture));
+                        rowBuilder.Add(failureCount.ToString(CultureInfo.CurrentCulture));
+                        rowBuilder.Add(percentageOfSuccess.ToString(CultureInfo.CurrentCulture));
+
+                        table.AddRow(rowBuilder.ToArray());
+                    }
+
+                    ctx.Refresh();
                     Thread.Sleep(FiveMilliseconds);
                 });
             table.Rows.Clear();
