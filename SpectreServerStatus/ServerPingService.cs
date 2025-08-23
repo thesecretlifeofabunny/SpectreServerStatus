@@ -24,7 +24,7 @@ public class ServerPingService(string serverToPing)
     /// PingCount, PingFailureCount, PingSuccessPercentage]</returns>
     public string[] ArrayOfLatestPingInformation()
     {
-        return 
+        return
         [
             ServerToPing,
             PingReplyIpAddress,
@@ -43,7 +43,7 @@ public class ServerPingService(string serverToPing)
         Ping pingSender = new();
 
         LatestPingReply = pingSender.Send(ServerToPing, DefaultPingTimeout);
-        
+
         UpdatePingReplyInformation();
         UpdatePingCounts();
     }
@@ -70,7 +70,7 @@ public class ServerPingService(string serverToPing)
     private void UpdatePingCounts()
     {
         PingCount++;
-        
+
         if (LatestPingReply is null || LatestPingReply.Status != IPStatus.Success)
         {
             PingFailureCount++;
