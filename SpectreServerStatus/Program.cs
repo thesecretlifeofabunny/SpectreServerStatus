@@ -16,33 +16,33 @@ public static class Program
             Console.WriteLine("you must provide an ip address to ping");
             return;
         }
-        
+
         var listOfServersToPing = args.Select(server => new ServerPingService(server)).ToList();
         PingListOfServers(listOfServersToPing);
     }
-        
-        // TODO: Allow for event handling so that we have a do while until eventSignal
-        // TODO: Async
-        private static void PingListOfServers(List<ServerPingService> listOfServersToPing)
+
+    // TODO: Allow for event handling so that we have a do while until eventSignal
+    // TODO: Async
+    private static void PingListOfServers(List<ServerPingService> listOfServersToPing)
+    {
+        var table = ServerPingService.TableBuilder();
+
+        while (true)
         {
-            var table = ServerPingService.TableBuilder();
-
-            while (true)
-            {
-                AnsiConsole.Live(table)
-                    .AutoClear(true)
-                    .Start(ctx =>
+            AnsiConsole.Live(table)
+                .AutoClear(true)
+                .Start(ctx =>
+                {
+                    foreach (var serverToPing in listOfServersToPing)
                     {
-                        foreach (var serverToPing in listOfServersToPing)
-                        {
-                            serverToPing.PingServer();
-                            table.AddRow(serverToPing.ArrayOfLatestPingInformation());
-                        }
+                        serverToPing.PingServer();
+                        table.AddRow(serverToPing.ArrayOfLatestPingInformation());
+                    }
 
-                        ctx.Refresh();
-                        Thread.Sleep(FiveMilliseconds);
-                    });
-                table.Rows.Clear();
-            }
+                    ctx.Refresh();
+                    Thread.Sleep(FiveMilliseconds);
+                });
+            table.Rows.Clear();
         }
     }
+}
