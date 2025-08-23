@@ -15,7 +15,6 @@ public class ServerPingService(string serverToPing)
     private double PingFailureCount { get; set; }
 
     private double PingSuccessPercentage => (PingCount - PingFailureCount) / PingCount * 100;
-    private const int DefaultPingTimeout = 120;
 
     /// <summary>
     /// Takes the relevant information of the PingReply and returns the array of information
@@ -38,11 +37,11 @@ public class ServerPingService(string serverToPing)
     /// <summary>
     /// Pings the ServerToPing attribute and updates the other attributes
     /// </summary>
-    public void PingServer()
+    public async Task PingServer(CancellationToken cancellationToken)
     {
         Ping pingSender = new();
 
-        LatestPingReply = pingSender.Send(ServerToPing, DefaultPingTimeout);
+        LatestPingReply = await pingSender.SendPingAsync(ServerToPing).WaitAsync(cancellationToken);
 
         UpdatePingReplyInformation();
         UpdatePingCounts();

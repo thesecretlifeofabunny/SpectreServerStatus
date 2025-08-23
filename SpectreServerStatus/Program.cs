@@ -1,15 +1,13 @@
-﻿using System.Globalization;
-using System.Net.NetworkInformation;
-using Spectre.Console;
+﻿using Spectre.Console;
 
 namespace SpectreServerStatus;
 
 //TODO: Allow for specifying a config of servers to ping.
 public static class Program
 {
-    private const int FiveMilliseconds = 5000;
-
-    public static void Main(string[] args)
+    private const int FiveSecondsInMilliseconds = 5000;
+    private const int TenSecondsInMilliseconds = 10000;
+    public static async Task Main(string[] args)
     {
         if (args.Length < 1)
         {
@@ -18,29 +16,29 @@ public static class Program
         }
 
         var listOfServersToPing = args.Select(server => new ServerPingService(server)).ToList();
-        PingListOfServers(listOfServersToPing);
+        await PingListOfServers(listOfServersToPing);
     }
 
     // TODO: Allow for event handling so that we have a do while until eventSignal
-    // TODO: Async
-    private static void PingListOfServers(List<ServerPingService> listOfServersToPing)
+    private static async Task PingListOfServers(List<ServerPingService> listOfServersToPing)
     {
         var table = ServerPingService.TableBuilder();
 
         while (true)
         {
-            AnsiConsole.Live(table)
+            await AnsiConsole.Live(table)
                 .AutoClear(true)
-                .Start(ctx =>
+                .StartAsync(async ctx =>
                 {
                     foreach (var serverToPing in listOfServersToPing)
                     {
-                        serverToPing.PingServer();
+                        CancellationTokenSource cancellationTokenSource = new(TenSecondsInMilliseconds);
+                        await serverToPing.PingServer(cancellationTokenSource.Token);
                         table.AddRow(serverToPing.ArrayOfLatestPingInformation());
                     }
 
                     ctx.Refresh();
-                    Thread.Sleep(FiveMilliseconds);
+                    Thread.Sleep(FiveSecondsInMilliseconds);
                 });
             table.Rows.Clear();
         }
