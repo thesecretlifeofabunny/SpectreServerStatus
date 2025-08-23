@@ -23,25 +23,21 @@ public abstract class Program
     private static async Task PingListOfServers(List<ServerPingService> listOfServersToPing)
     {
         var table = ServerPingService.TableBuilder();
-
+        
         while (true)
         {
-            await AnsiConsole.Live(table)
-                .AutoClear(true)
-                .StartAsync(async ctx =>
-                {
-                    foreach (var serverToPing in listOfServersToPing)
-                    {
-                        CancellationTokenSource cancellationTokenSource = new(TenSecondsInMilliseconds);
-                        await serverToPing.PingServer(cancellationTokenSource.Token);
-                        table.AddRow(serverToPing.ArrayOfLatestPingInformation());
-                    }
+            foreach (var serverToPing in listOfServersToPing)
+            {
+                CancellationTokenSource cancellationTokenSource = new(TenSecondsInMilliseconds);
+                await serverToPing.PingServer(cancellationTokenSource.Token);
+                table.AddRow(serverToPing.ArrayOfLatestPingInformation());
+            }
 
-                    ctx.Refresh();
-                    Thread.Sleep(FiveSecondsInMilliseconds);
-                });
+            AnsiConsole.Clear();
+            AnsiConsole.Write(table);
+            Thread.Sleep(FiveSecondsInMilliseconds);
             table.Rows.Clear();
-        }
+        } 
     }
 
     /// <summary>
