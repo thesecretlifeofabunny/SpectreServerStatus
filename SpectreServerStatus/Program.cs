@@ -2,11 +2,8 @@
 
 namespace SpectreServerStatus;
 
-public abstract class Program
+public static class Program
 {
-    private const int FiveSecondsInMilliseconds = 5000;
-    private const int TenSecondsInMilliseconds = 10000;
-
     public static async Task Main(string[] args)
     {
         if (!ConfigurationProcurement.ProcureListOfServersToPing(out var listOfServersToPing, args)) return;
@@ -25,7 +22,8 @@ public abstract class Program
         {
             foreach (var serverToPing in listOfServersToPing)
             {
-                CancellationTokenSource cancellationTokenSource = new(TenSecondsInMilliseconds);
+                const int tenSecondsInMilliseconds = 10000;
+                CancellationTokenSource cancellationTokenSource = new(tenSecondsInMilliseconds);
                 await serverToPing.PingServer(cancellationTokenSource.Token);
                 table.AddRow(serverToPing.ArrayOfLatestPingInformation());
             }
@@ -33,7 +31,8 @@ public abstract class Program
             AnsiConsole.Clear();
             AnsiConsole.Write(table);
             
-            Thread.Sleep(FiveSecondsInMilliseconds);
+            const int fiveSecondsInMilliseconds = 5000;
+            Thread.Sleep(fiveSecondsInMilliseconds);
             table.Rows.Clear();
         }
     }
