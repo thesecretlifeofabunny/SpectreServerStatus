@@ -32,6 +32,7 @@ public abstract class Program
 
             AnsiConsole.Clear();
             AnsiConsole.Write(table);
+            
             Thread.Sleep(FiveSecondsInMilliseconds);
             table.Rows.Clear();
         }

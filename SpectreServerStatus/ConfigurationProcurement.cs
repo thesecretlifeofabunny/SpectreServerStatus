@@ -45,13 +45,17 @@ public static class ConfigurationProcurement
     private static List<ServerPingService> GetJsonFromListOfPaths(List<string> listOfPathsToCheck)
     {
         string[] stringListOfServers = [];
-        foreach (var jsonString in from pathToCheck
-                     in listOfPathsToCheck
-                                   where File.Exists(pathToCheck)
-                                   select File.ReadAllText(pathToCheck)
-                )
+        foreach (var pathToCheck in listOfPathsToCheck.Where(File.Exists))
         {
-            stringListOfServers = JsonSerializer.Deserialize<string[]>(jsonString)!;
+            try
+            {
+                var jsonString = File.ReadAllText(pathToCheck);
+                stringListOfServers = JsonSerializer.Deserialize<string[]>(jsonString)!;
+            }
+            catch (Exception exceptionCaught)
+            {
+                Console.WriteLine($"An exception occured, here is the exception: {exceptionCaught}");
+            }
         }
 
         if (stringListOfServers.Length != 0)
