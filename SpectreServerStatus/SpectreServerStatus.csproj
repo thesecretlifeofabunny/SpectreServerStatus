@@ -9,7 +9,7 @@
 
     <ItemGroup>
       <PackageReference Include="Spectre.Console" Version="0.50.1-preview.0.26" />
-      <PackageReference Include="Spectre.Console.Cli" Version="0.50.1-preview.0.21" />
+      <PackageReference Include="Spectre.Console.Cli" Version="0.50.1-preview.0.21" Condition=" '$(ContinuousIntegrationBuild)'=='true' "/>
     </ItemGroup>
 
 </Project>
