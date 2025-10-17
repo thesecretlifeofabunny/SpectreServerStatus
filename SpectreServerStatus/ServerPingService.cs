@@ -11,7 +11,8 @@ public class ServerPingService(string serverToPing)
     private string PingReplyIpAddress { get; set; } = string.Empty;
     private string PingReplyStatus { get; set; } = string.Empty;
     private string PingReplyRoundTripTime { get; set; } = string.Empty;
-    private double PingCount { get; set; }
+    private int PingCount { get; set; }
+    private int ContinousFailureCount { get; set; }
     private double PingFailureCount { get; set; }
 
     private double PingSuccessPercentage => (PingCount - PingFailureCount) / PingCount * 100;
@@ -23,6 +24,19 @@ public class ServerPingService(string serverToPing)
     /// PingCount, PingFailureCount, PingSuccessPercentage]</returns>
     public string[] ArrayOfLatestPingInformation()
     {
+        if (ContinousFailureCount > 2){
+            
+            return
+            [
+                "[red]" + ServerToPing + "[/]",
+                "[red]" + PingReplyIpAddress + "[/]",
+                "[red]" + PingReplyStatus + "[/]",
+                "[red]" + PingReplyRoundTripTime + "[/]",
+                "[red]" + PingCount.ToString(CultureInfo.InvariantCulture) + "[/]",
+                "[red]" + PingFailureCount.ToString(CultureInfo.InvariantCulture) + "[/]",
+                "[red]" + PingSuccessPercentage.ToString(CultureInfo.InvariantCulture + "[/]")
+            ];
+        }
         return
         [
             ServerToPing,
@@ -40,8 +54,12 @@ public class ServerPingService(string serverToPing)
     public async Task PingServer(CancellationToken cancellationToken)
     {
         Ping pingSender = new();
-
-        LatestPingReply = await pingSender.SendPingAsync(ServerToPing).WaitAsync(cancellationToken);
+        try
+        {    
+            LatestPingReply = await pingSender.SendPingAsync(ServerToPing).WaitAsync(cancellationToken);
+        }catch (Exception exceptionCaught){
+            // TODO: Log Errors? SpectreConsoleOutTheErrors?
+        }
 
         UpdatePingReplyInformation();
         UpdatePingCounts();
@@ -73,7 +91,13 @@ public class ServerPingService(string serverToPing)
         if (LatestPingReply is null || LatestPingReply.Status != IPStatus.Success)
         {
             PingFailureCount++;
+            ContinousFailureCount++;
+
+            return;           
         }
+
+        ContinousFailureCount = 0;
+
     }
 
     private void UpdatePingReplyInformation()
