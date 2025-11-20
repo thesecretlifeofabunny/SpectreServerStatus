@@ -58,7 +58,8 @@ public class ServerPingService(string serverToPing)
         {    
             LatestPingReply = await pingSender.SendPingAsync(ServerToPing).WaitAsync(cancellationToken);
         }catch (Exception exceptionCaught){
-            // TODO: Log Errors? SpectreConsoleOutTheErrors?
+            // I should log this instead, console writing as it is now an error to ignore.
+            Console.Write(exceptionCaught);
         }
 
         UpdatePingReplyInformation();

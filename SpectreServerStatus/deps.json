@@ -1,12 +1,7 @@
 [
   {
     "pname": "Spectre.Console",
-    "version": "0.50.1-preview.0.26",
-    "hash": "sha256-TA/5omW35vQoDxr6b07Gg8W6YxYgIyPG78EaqQVC1Ms="
-  },
-  {
-    "pname": "Spectre.Console.Cli",
-    "version": "0.50.1-preview.0.21",
-    "hash": "sha256-KrwKqj69AkTDvlTntwbuAEjQ97JKfW++mV7xdIlOq28="
+    "version": "0.54.1-alpha.0.6",
+    "hash": "sha256-3MJj9Z0VfuqL1Ow/uCdx1I3sRpwUNlqu7ve7EEI6hZU="
   }
 ]

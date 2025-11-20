@@ -2,14 +2,13 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Spectre.Console" Version="0.50.1-preview.0.26" />
-      <PackageReference Include="Spectre.Console.Cli" Version="0.50.1-preview.0.21" Condition=" '$(ContinuousIntegrationBuild)'=='true' "/>
+      <PackageReference Include="Spectre.Console" Version="0.54.1-alpha.0.6" />
     </ItemGroup>
 
 </Project>

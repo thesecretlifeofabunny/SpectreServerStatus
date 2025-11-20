@@ -13,10 +13,10 @@ buildDotnetModule {
   projectFile = "src/../SpectreServerStatus.sln";
   nugetDeps = ./deps.json;
 
-  dotnet-sdk = dotnetCorePackages.sdk_8_0;
-  dotnet-runtime = dotnetCorePackages.runtime_8_0;
+  dotnet-sdk = dotnetCorePackages.sdk_10_0;
+  dotnet-runtime = dotnetCorePackages.runtime_10_0;
 
   executables = [ "SpectreServerStatus" ];
 
-  packNupkg = true; # This packs the project as "foo-0.1.nupkg" at `$out/share`.
+  packNupkg = true;
 }
